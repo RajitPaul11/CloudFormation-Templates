@@ -1,0 +1,46 @@
+Resources:
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: 192.168.0.0/16
+      EnableDnsHostnames: 'true'
+      EnableDnsSupport: 'true'
+      InstanceTenancy: default
+      Tags: 
+        - Key: Name
+          Value: myvpc
+
+  mySubnet1:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: 'ap-south-1a'
+      CidrBlock: 192.168.20.0/24 
+      MapPublicIpOnLaunch: 'true'
+      Tags: 
+        - Key: Name
+          Value: PubliC Subnet
+      VpcId: !Ref myVPC
+  mySubnet2:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: 'ap-south-1b'
+      CidrBlock: 192.168.40.0/24 
+      MapPublicIpOnLaunch: 'false'
+      Tags: 
+        - Key: Name
+          Value: Private Subnet
+      VpcId: !Ref myVPC
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties: 
+      Tags: 
+        - Key: Name
+          Value: myIG
+
+  myIGAttach:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: 
+      InternetGatewayId: !Ref myInternetGateway
+      VpcId: !Ref myVPC
+
