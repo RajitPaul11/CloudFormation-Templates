@@ -4,13 +4,12 @@ Resources:
     Properties: 
       CidrBlock: 192.168.0.0/16
       EnableDnsHostnames: 'true'
-      EnableDnsSupport: 'true'
       InstanceTenancy: default
       Tags: 
         - Key: Name
           Value: myvpc
 
-  mySubnet1:
+  PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties: 
       AvailabilityZone: 'ap-south-1a'
@@ -21,7 +20,7 @@ Resources:
           Value: PubliC Subnet
       VpcId: !Ref myVPC
   
-  mySubnet2:
+  PrivateSubnet:
     Type: AWS::EC2::Subnet
     Properties: 
       AvailabilityZone: 'ap-south-1b'
@@ -50,7 +49,7 @@ Resources:
     Properties:
       VpcId: !Ref myVPC
 
-  myRoute:
+  PublicRoute:
     Type: AWS::EC2::Route
     Properties:
        RouteTableId: !Ref myRouteTable
@@ -60,5 +59,29 @@ Resources:
   mySubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref mySubnet1
+      SubnetId: !Ref PublicSubnet
       RouteTableId: !Ref myRouteTable
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref myVPC
+
+  NAT:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+         Fn::GetAtt:
+         - EIP
+         - AllocationId
+      SubnetId: !Ref PublicSubnet
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NAT
