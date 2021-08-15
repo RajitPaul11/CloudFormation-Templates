@@ -34,7 +34,7 @@
             Ref: VolumeType
           Iops: "200"
           DeleteOnTermination: "true"
-          VolumeSize: "20"
+          VolumeSize: "50"
       - DeviceName: "/dev/sdk"
         NoDevice: {}
       SecurityGroups: [!Ref 'InstanceSecurityGroup']
@@ -57,4 +57,8 @@
     Export: 
       Name: SSHSG
 
+    Condition: CreateOutput
+
+ Conditions:
+   CreateOutput: !Equals [ !Ref 'VolumeType', gp3]
   
