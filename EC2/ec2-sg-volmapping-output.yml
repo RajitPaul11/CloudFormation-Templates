@@ -1,0 +1,60 @@
+ Parameters:
+  ImageId:
+    Type: String
+    AllowedValues:
+      - ami-0c2b8ca1dad447f8a
+      - ami-0b0af3577fe5e3532
+      - ami-09e67e426f25ce0d7
+    Description: Enter Instance Id.
+  VolumeType:
+    Type: String
+    Description: Enter the volume type.
+  SGSSHPortNumber:
+    Type: String
+    Description: Enter the port number to SSH to in SG.
+
+ Mappings:
+   RegionMap:
+    us-east-1:
+      "32": "ami-0c2b8ca1dad447f8a"
+      "64": "ami-0b0af3577fe5e3532"
+    us-west-1:
+      "32": "ami-09e67e426f25ce0d7"
+      "64": "ami-0747bdcabd34c712a"
+
+ Resources:
+  MyEC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", 64] 
+      BlockDeviceMappings: 
+      - DeviceName: "/dev/sdm"
+        Ebs: 
+          VolumeType: 
+            Ref: VolumeType
+          Iops: "200"
+          DeleteOnTermination: "true"
+          VolumeSize: "20"
+      - DeviceName: "/dev/sdk"
+        NoDevice: {}
+      SecurityGroups: [!Ref 'InstanceSecurityGroup']
+
+  InstanceSecurityGroup:
+      Type: AWS::EC2::SecurityGroup 
+      Properties:
+        GroupName: SSHSG
+        GroupDescription: SSH Access to the instance via port 22
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref 'SGSSHPortNumber'
+          ToPort: !Ref SGSSHPortNumber
+          CidrIp: 0.0.0.0/0
+
+ Outputs:
+   SSHSecGroup:
+    Description: The SSH SG 
+    Value: !Ref 'InstanceSecurityGroup'
+    Export: 
+      Name: SSHSG
+
+  
