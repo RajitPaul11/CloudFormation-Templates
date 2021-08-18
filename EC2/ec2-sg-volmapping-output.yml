@@ -32,9 +32,9 @@
         Ebs: 
           VolumeType: 
             Ref: VolumeType
-          Iops: "200"
-          DeleteOnTermination: "true"
-          VolumeSize: "50"
+          Iops: 200
+          DeleteOnTermination: True
+          VolumeSize: 50
       - DeviceName: "/dev/sdk"
         NoDevice: {}
       SecurityGroups: [!Ref 'InstanceSecurityGroup']
