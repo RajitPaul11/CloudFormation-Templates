@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This templates helps is creating a SNS Topic with desired subscription
+
+Parameters:
+  TopicName:
+    Type: String
+    Description:  Topic Name
+    Default: afpl-phase-II-sns
+
+Resources: 
+ MySNSTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    DisplayName: afpl-phase-II-sns
+    Subscription: 
+      - Endpoint: "support@cloudworkmates.com"
+        Protocol: "Email"
+    TopicName: !Ref TopicName
+
+Outputs: 
+  MyTopicArn: 
+    Description: Arn of Created SNS Topic
+    Value: !Ref MySNSTopic
