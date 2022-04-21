@@ -1,0 +1,76 @@
+Parameters:
+  AliasName:
+    Type: String
+    Description: The shortname of the account in which these KMS keys are being deployed.
+Resources:
+  MyKMSKey:
+    Type: 'AWS::KMS::Key'
+    Properties:
+      Description: !Sub '${AliasName} KMS Key'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AliasName}-kms-key'
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: Enable IAM user permissions
+          Effect: Allow
+          Principal:
+            AWS: arn:aws:iam::youraccountID:root
+          Action: kms:*
+          Resource: "*"
+        - Sid: Allow key administrator access
+          Effect: Allow
+          Principal:
+            AWS: arn:aws:iam::youraccountID:role/RoleName
+          Action:
+          - kms:Create*
+          - kms:Describe*
+          - kms:Enable*
+          - kms:List*
+          - kms:Put*
+          - kms:Update*
+          - kms:Revoke*
+          - kms:Disable*
+          - kms:Get*
+          - kms:Delete*
+          - kms:TagResource
+          - kms:UntagResource
+          - kms:ScheduleKeyDeletion
+          - kms:CancelKeyDeletion
+          Resource: "*"
+        - Sid: Basic key usage
+          Effect: Allow
+          Principal:
+            AWS:
+            - arn:aws:iam::youraccountID:role/aws-service-role/eks.amazonaws.com/AWSServiceRoleForAmazonEKS
+            - arn:aws:iam::youraccountID:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling
+            - arn:aws:iam::youraccountID:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing
+          Action:
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey*
+          - kms:DescribeKey
+          Resource: "*"
+        - Sid: Allow attachment of persistent resources
+          Effect: Allow
+          Principal:
+            AWS:
+            - arn:aws:iam::youraccountID:role/aws-service-role/eks.amazonaws.com/AWSServiceRoleForAmazonEKS
+            - arn:aws:iam::youraccountID:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling
+            - arn:aws:iam::youraccountID:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing
+          Action:
+          - kms:CreateGrant
+          - kms:ListGrants
+          - kms:RevokeGrant
+          Resource: "*"
+          Condition:
+            Bool:
+              kms:GrantIsForAWSResource: 'true'
+  MyAirKeyAlias:
+    Type: 'AWS::KMS::Alias'
+    Properties:
+      AliasName: !Sub 'alias/${AliasName}'
+      TargetKeyId: !Ref MyKMSKey
